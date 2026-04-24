@@ -1,0 +1,17 @@
+{
+  "total_repairs_attempted": 8,
+  "successful_repairs": 7,
+  "success_rate_pct": 87.5,
+  "total_iterations": 10,
+  "avg_iterations_per_repair": 1.2,
+  "total_initial_errors": 11,
+  "total_final_errors": 1,
+  "total_errors_fixed": 10,
+  "error_reduction_pct": 90.9,
+  "total_repair_time_s": 61.3,
+  "avg_repair_time_s": 7.7,
+  "avg_error_reduction_per_iteration": 1.0,
+  "iterations_with_improvement": 8,
+  "iterations_with_regression": 0,
+  "iterations_with_no_change": 2
+}
