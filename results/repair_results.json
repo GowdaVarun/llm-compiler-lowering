@@ -1,0 +1,248 @@
+[
+  {
+    "construct_id": "L2_01",
+    "model_name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "original_ir": "define i32 @max(i32 %a, i32 %b) {\nentry:\n    %cmp = icmp gt i32 %a, %b\n    br i1 %cmp, label %if_true, label %if_false\n\nif_true:\n    ret i32 %a\n\nif_false:\n    ret i32 %b\n}",
+    "final_ir": "define i32 @max(i32 %a, i32 %b) {\nentry:\n    %cmp = icmp sgt i32 %a, %b\n    br i1 %cmp, label %if_true, label %if_false\n\nif_true:\n    ret i32 %a\n\nif_false:\n    ret i32 %b\n}",
+    "source_code": "int max(int a, int b) {\n    if (a > b) {\n        return a;\n    } else {\n        return b;\n    }\n}\n",
+    "reference_ir": "define i32 @max(i32 %a, i32 %b) {\nentry:\n  %cmp = icmp sgt i32 %a, %b\n  br i1 %cmp, label %if.then, label %if.else\n\nif.then:\n  ret i32 %a\n\nif.else:\n  ret i32 %b\n}\n",
+    "iterations": [
+      {
+        "iteration": 1,
+        "ir_before": "define i32 @max(i32 %a, i32 %b) {\nentry:\n    %cmp = icmp gt i32 %a, %b\n    br i1 %cmp, label %if_true, label %if_false\n\nif_true:\n    ret i32 %a\n\nif_false:\n    ret i32 %b\n}",
+        "ir_after": "define i32 @max(i32 %a, i32 %b) {\nentry:\n    %cmp = icmp sgt i32 %a, %b\n    br i1 %cmp, label %if_true, label %if_false\n\nif_true:\n    ret i32 %a\n\nif_false:\n    ret i32 %b\n}",
+        "errors_before": 1,
+        "errors_after": 0,
+        "errors_fixed": [],
+        "errors_introduced": [],
+        "repair_time_s": 2.25,
+        "model_used": "Qwen/Qwen2.5-Coder-32B-Instruct"
+      }
+    ],
+    "total_iterations": 1,
+    "initial_errors": 1,
+    "final_errors": 0,
+    "repair_successful": true,
+    "total_repair_time_s": 2.2516636848449707,
+    "error_reduction": 1,
+    "error_reduction_pct": 100.0
+  },
+  {
+    "construct_id": "L2_02",
+    "model_name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "original_ir": "; Function Attrs: noinline nounwind optnone uwtable\ndefine dso_local i32 @sum_to_n(i32 %n) #0 {\nentry:\n  ; Initialize sum and i\n  %sum = alloca i32, align 4\n  %i = alloca i32, align 4\n  store i32 0, i32* %sum, align 4\n  store i32 0, i32* %i, align 4\n\n  ; Branch to the loop condition\n  br label %loop_cond\n\nloop_cond:\n  ; Load i and n\n  %i_val = load i32, i32* %i, align 4\n  %n_val = load i32, i32* %n, align 4\n\n  ; Check if i < n\n  %cond = icmp slt i32 %i_val, %n_val\n  br i1 %cond, label %loop_body, label %exit\n\nloop_body:\n  ; Load sum and i\n  %sum_val = load i32, i32* %sum, align 4\n  %i_val = load i32, i32* %i, align 4\n\n  ; Update sum\n  %new_sum = add i32 %sum_val, %i_val\n  store i32 %new_sum, i32* %sum, align 4\n\n  ; Increment i\n  %new_i = add i32 %i_val, 1\n  store i32 %new_i, i32* %i, align 4\n\n  ; Branch back to the loop condition\n  br label %loop_cond\n\nexit:\n  ; Load the final value of sum\n  %final_sum = load i32, i32* %sum, align 4\n\n  ; Return the final value of sum\n  ret i32 %final_sum\n}",
+    "final_ir": "; Function Attrs: noinline nounwind optnone uwtable\ndefine dso_local i32 @sum_to_n(i32 %n) #0 {\nentry:\n  ; Initialize sum and i\n  %sum = alloca i32, align 4\n  %i = alloca i32, align 4\n  store i32 0, i32* %sum, align 4\n  store i32 0, i32* %i, align 4\n\n  ; Branch to the loop condition\n  br label %loop_cond\n\nloop_cond:\n  ; Load i and n\n  %i_val = load i32, i32* %i, align 4\n  %n_val = load i32, i32* %n, align 4\n\n  ; Check if i < n\n  %cond = icmp slt i32 %i_val, %n_val\n  br i1 %cond, label %loop_body, label %exit\n\nloop_body:\n  ; Load sum and i\n  %sum_val = load i32, i32* %sum, align 4\n  %i_val2 = load i32, i32* %i, align 4\n\n  ; Update sum\n  %new_sum = add i32 %sum_val, %i_val2\n  store i32 %new_sum, i32* %sum, align 4\n\n  ; Increment i\n  %new_i = add i32 %i_val2, 1\n  store i32 %new_i, i32* %i, align 4\n\n  ; Branch back to the loop condition\n  br label %loop_cond\n\nexit:\n  ; Load the final value of sum\n  %final_sum = load i32, i32* %sum, align 4\n\n  ; Return the final value of sum\n  ret i32 %final_sum\n}",
+    "source_code": "int sum_to_n(int n) {\n    int sum = 0;\n    int i = 0;\n    while (i < n) {\n        sum = sum + i;\n        i = i + 1;\n    }\n    return sum;\n}\n",
+    "reference_ir": "define i32 @sum_to_n(i32 %n) {\nentry:\n  br label %while.cond\n\nwhile.cond:\n  %sum = phi i32 [ 0, %entry ], [ %sum.next, %while.body ]\n  %i = phi i32 [ 0, %entry ], [ %i.next, %while.body ]\n  %cmp = icmp slt i32 %i, %n\n  br i1 %cmp, label %while.body, label %while.end\n\nwhile.body:\n  %sum.next = add i32 %sum, %i\n  %i.next = add i32 %i, 1\n  br label %while.cond\n\nwhile.end:\n  ret i32 %sum\n}\n",
+    "iterations": [
+      {
+        "iteration": 1,
+        "ir_before": "; Function Attrs: noinline nounwind optnone uwtable\ndefine dso_local i32 @sum_to_n(i32 %n) #0 {\nentry:\n  ; Initialize sum and i\n  %sum = alloca i32, align 4\n  %i = alloca i32, align 4\n  store i32 0, i32* %sum, align 4\n  store i32 0, i32* %i, align 4\n\n  ; Branch to the loop condition\n  br label %loop_cond\n\nloop_cond:\n  ; Load i and n\n  %i_val = load i32, i32* %i, align 4\n  %n_val = load i32, i32* %n, align 4\n\n  ; Check if i < n\n  %cond = icmp slt i32 %i_val, %n_val\n  br i1 %cond, label %loop_body, label %exit\n\nloop_body:\n  ; Load sum and i\n  %sum_val = load i32, i32* %sum, align 4\n  %i_val = load i32, i32* %i, align 4\n\n  ; Update sum\n  %new_sum = add i32 %sum_val, %i_val\n  store i32 %new_sum, i32* %sum, align 4\n\n  ; Increment i\n  %new_i = add i32 %i_val, 1\n  store i32 %new_i, i32* %i, align 4\n\n  ; Branch back to the loop condition\n  br label %loop_cond\n\nexit:\n  ; Load the final value of sum\n  %final_sum = load i32, i32* %sum, align 4\n\n  ; Return the final value of sum\n  ret i32 %final_sum\n}",
+        "ir_after": "; Function Attrs: noinline nounwind optnone uwtable\ndefine dso_local i32 @sum_to_n(i32 %n) #0 {\nentry:\n  ; Initialize sum and i\n  %sum = alloca i32, align 4\n  %i = alloca i32, align 4\n  store i32 0, i32* %sum, align 4\n  store i32 0, i32* %i, align 4\n\n  ; Branch to the loop condition\n  br label %loop_cond\n\nloop_cond:\n  ; Load i and n\n  %i_val = load i32, i32* %i, align 4\n  %n_val = load i32, i32* %n, align 4\n\n  ; Check if i < n\n  %cond = icmp slt i32 %i_val, %n_val\n  br i1 %cond, label %loop_body, label %exit\n\nloop_body:\n  ; Load sum and i\n  %sum_val = load i32, i32* %sum, align 4\n  %i_val2 = load i32, i32* %i, align 4\n\n  ; Update sum\n  %new_sum = add i32 %sum_val, %i_val2\n  store i32 %new_sum, i32* %sum, align 4\n\n  ; Increment i\n  %new_i = add i32 %i_val2, 1\n  store i32 %new_i, i32* %i, align 4\n\n  ; Branch back to the loop condition\n  br label %loop_cond\n\nexit:\n  ; Load the final value of sum\n  %final_sum = load i32, i32* %sum, align 4\n\n  ; Return the final value of sum\n  ret i32 %final_sum\n}",
+        "errors_before": 1,
+        "errors_after": 0,
+        "errors_fixed": [],
+        "errors_introduced": [],
+        "repair_time_s": 5.87,
+        "model_used": "Qwen/Qwen2.5-Coder-32B-Instruct"
+      }
+    ],
+    "total_iterations": 1,
+    "initial_errors": 1,
+    "final_errors": 0,
+    "repair_successful": true,
+    "total_repair_time_s": 5.86504340171814,
+    "error_reduction": 1,
+    "error_reduction_pct": 100.0
+  },
+  {
+    "construct_id": "L2_03",
+    "model_name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "original_ir": "define i32 @factorial(i32 %n) {\nentry:\n  ; Initialize result to 1\n  %result = alloca i32\n  store i32 1, i32* %result\n\n  ; Initialize i to 1\n  %i = alloca i32\n  store i32 1, i32* %i\n\n  ; Branch to the loop condition\n  br label %loop_condition\n\nloop_condition:\n  ; Load the current value of i\n  %i_val = load i32, i32* %i\n\n  ; Check if i <= n\n  %cmp = icmp sle i32 %i_val, %n\n\n  ; If true, go to the loop body, otherwise exit\n  br i1 %cmp, label %loop_body, label %exit\n\nloop_body:\n  ; Load the current values of result and i\n  %result_val = load i32, i32* %result\n  %i_val = load i32, i32* %i\n\n  ; Update result = result * i\n  %new_result = mul i32 %result_val, %i_val\n  store i32 %new_result, i32* %result\n\n  ; Increment i\n  %new_i = add i32 %i_val, 1\n  store i32 %new_i, i32* %i\n\n  ; Branch back to the loop condition\n  br label %loop_condition\n\nexit:\n  ; Load the final value of result\n  %final_result = load i32, i32* %result\n\n  ; Return the final result\n  ret i32 %final_result\n}",
+    "final_ir": "define i32 @factorial(i32 %n) {\nentry:\n  ; Initialize result to 1\n  %result = alloca i32\n  store i32 1, i32* %result\n\n  ; Initialize i to 1\n  %i = alloca i32\n  store i32 1, i32* %i\n\n  ; Branch to the loop condition\n  br label %loop_condition\n\nloop_condition:\n  ; Load the current value of i\n  %i_val = load i32, i32* %i\n\n  ; Check if i <= n\n  %cmp = icmp sle i32 %i_val, %n\n\n  ; If true, go to the loop body, otherwise exit\n  br i1 %cmp, label %loop_body, label %exit\n\nloop_body:\n  ; Load the current values of result and i\n  %result_val = load i32, i32* %result\n  %i_val2 = load i32, i32* %i\n\n  ; Update result = result * i\n  %new_result = mul i32 %result_val, %i_val2\n  store i32 %new_result, i32* %result\n\n  ; Increment i\n  %new_i = add i32 %i_val2, 1\n  store i32 %new_i, i32* %i\n\n  ; Branch back to the loop condition\n  br label %loop_condition\n\nexit:\n  ; Load the final value of result\n  %final_result = load i32, i32* %result\n\n  ; Return the final result\n  ret i32 %final_result\n}",
+    "source_code": "int factorial(int n) {\n    int result = 1;\n    for (int i = 1; i <= n; i++) {\n        result = result * i;\n    }\n    return result;\n}\n",
+    "reference_ir": "define i32 @factorial(i32 %n) {\nentry:\n  br label %for.cond\n\nfor.cond:\n  %result = phi i32 [ 1, %entry ], [ %result.next, %for.body ]\n  %i = phi i32 [ 1, %entry ], [ %i.next, %for.body ]\n  %cmp = icmp sle i32 %i, %n\n  br i1 %cmp, label %for.body, label %for.end\n\nfor.body:\n  %result.next = mul i32 %result, %i\n  %i.next = add i32 %i, 1\n  br label %for.cond\n\nfor.end:\n  ret i32 %result\n}\n",
+    "iterations": [
+      {
+        "iteration": 1,
+        "ir_before": "define i32 @factorial(i32 %n) {\nentry:\n  ; Initialize result to 1\n  %result = alloca i32\n  store i32 1, i32* %result\n\n  ; Initialize i to 1\n  %i = alloca i32\n  store i32 1, i32* %i\n\n  ; Branch to the loop condition\n  br label %loop_condition\n\nloop_condition:\n  ; Load the current value of i\n  %i_val = load i32, i32* %i\n\n  ; Check if i <= n\n  %cmp = icmp sle i32 %i_val, %n\n\n  ; If true, go to the loop body, otherwise exit\n  br i1 %cmp, label %loop_body, label %exit\n\nloop_body:\n  ; Load the current values of result and i\n  %result_val = load i32, i32* %result\n  %i_val = load i32, i32* %i\n\n  ; Update result = result * i\n  %new_result = mul i32 %result_val, %i_val\n  store i32 %new_result, i32* %result\n\n  ; Increment i\n  %new_i = add i32 %i_val, 1\n  store i32 %new_i, i32* %i\n\n  ; Branch back to the loop condition\n  br label %loop_condition\n\nexit:\n  ; Load the final value of result\n  %final_result = load i32, i32* %result\n\n  ; Return the final result\n  ret i32 %final_result\n}",
+        "ir_after": "define i32 @factorial(i32 %n) {\nentry:\n  ; Initialize result to 1\n  %result = alloca i32\n  store i32 1, i32* %result\n\n  ; Initialize i to 1\n  %i = alloca i32\n  store i32 1, i32* %i\n\n  ; Branch to the loop condition\n  br label %loop_condition\n\nloop_condition:\n  ; Load the current value of i\n  %i_val = load i32, i32* %i\n\n  ; Check if i <= n\n  %cmp = icmp sle i32 %i_val, %n\n\n  ; If true, go to the loop body, otherwise exit\n  br i1 %cmp, label %loop_body, label %exit\n\nloop_body:\n  ; Load the current values of result and i\n  %result_val = load i32, i32* %result\n  %i_val2 = load i32, i32* %i\n\n  ; Update result = result * i\n  %new_result = mul i32 %result_val, %i_val2\n  store i32 %new_result, i32* %result\n\n  ; Increment i\n  %new_i = add i32 %i_val2, 1\n  store i32 %new_i, i32* %i\n\n  ; Branch back to the loop condition\n  br label %loop_condition\n\nexit:\n  ; Load the final value of result\n  %final_result = load i32, i32* %result\n\n  ; Return the final result\n  ret i32 %final_result\n}",
+        "errors_before": 1,
+        "errors_after": 0,
+        "errors_fixed": [],
+        "errors_introduced": [],
+        "repair_time_s": 4.8,
+        "model_used": "Qwen/Qwen2.5-Coder-32B-Instruct"
+      }
+    ],
+    "total_iterations": 1,
+    "initial_errors": 1,
+    "final_errors": 0,
+    "repair_successful": true,
+    "total_repair_time_s": 4.80052375793457,
+    "error_reduction": 1,
+    "error_reduction_pct": 100.0
+  },
+  {
+    "construct_id": "L2_04",
+    "model_name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "original_ir": "define i32 @classify(i32 %x) {\nentry:\n  %cond1 = icmp sgt i32 %x, 0\n  br i1 %cond1, label %if.then, label %if.else\n\nif.then:\n  %cond2 = icmp sgt i32 %x, 100\n  br i1 %cond2, label %if.then2, label %if.else2\n\nif.then2:\n  %ret = constant i32 2\n  br label %return\n\nif.else2:\n  %ret = constant i32 1\n  br label %return\n\nif.else:\n  %cond3 = icmp slt i32 %x, 0\n  br i1 %cond3, label %if.then3, label %if.else3\n\nif.then3:\n  %ret = constant i32 -1\n  br label %return\n\nif.else3:\n  %ret = constant i32 0\n  br label %return\n\nreturn:\n  %0 = phi i32 [ %ret, %if.then2 ], [ %ret, %if.else2 ], [ %ret, %if.then3 ], [ %ret, %if.else3 ]\n  ret i32 %0\n}",
+    "final_ir": "define i32 @classify(i32 %x) {\nentry:\n  %cond1 = icmp sgt i32 %x, 0\n  br i1 %cond1, label %if.then, label %if.else\n\nif.then:\n  %cond2 = icmp sgt i32 %x, 100\n  br i1 %cond2, label %if.then2, label %if.else2\n\nif.then2:\n  br label %return\n\nif.else2:\n  br label %return\n\nif.else:\n  %cond3 = icmp slt i32 %x, 0\n  br i1 %cond3, label %if.then3, label %if.else3\n\nif.then3:\n  br label %return\n\nif.else3:\n  br label %return\n\nreturn:\n  %0 = phi i32 [ 2, %if.then2 ], [ 1, %if.else2 ], [ -1, %if.then3 ], [ 0, %if.else3 ]\n  ret i32 %0\n}",
+    "source_code": "int classify(int x) {\n    if (x > 0) {\n        if (x > 100) {\n            return 2;\n        } else {\n            return 1;\n        }\n    } else if (x < 0) {\n        return -1;\n    } else {\n        return 0;\n    }\n}\n",
+    "reference_ir": "define i32 @classify(i32 %x) {\nentry:\n  %cmp1 = icmp sgt i32 %x, 0\n  br i1 %cmp1, label %if.pos, label %if.neg.check\n\nif.pos:\n  %cmp2 = icmp sgt i32 %x, 100\n  br i1 %cmp2, label %ret.2, label %ret.1\n\nret.2:\n  ret i32 2\n\nret.1:\n  ret i32 1\n\nif.neg.check:\n  %cmp3 = icmp slt i32 %x, 0\n  br i1 %cmp3, label %ret.neg, label %ret.zero\n\nret.neg:\n  ret i32 -1\n\nret.zero:\n  ret i32 0\n}\n",
+    "iterations": [
+      {
+        "iteration": 1,
+        "ir_before": "define i32 @classify(i32 %x) {\nentry:\n  %cond1 = icmp sgt i32 %x, 0\n  br i1 %cond1, label %if.then, label %if.else\n\nif.then:\n  %cond2 = icmp sgt i32 %x, 100\n  br i1 %cond2, label %if.then2, label %if.else2\n\nif.then2:\n  %ret = constant i32 2\n  br label %return\n\nif.else2:\n  %ret = constant i32 1\n  br label %return\n\nif.else:\n  %cond3 = icmp slt i32 %x, 0\n  br i1 %cond3, label %if.then3, label %if.else3\n\nif.then3:\n  %ret = constant i32 -1\n  br label %return\n\nif.else3:\n  %ret = constant i32 0\n  br label %return\n\nreturn:\n  %0 = phi i32 [ %ret, %if.then2 ], [ %ret, %if.else2 ], [ %ret, %if.then3 ], [ %ret, %if.else3 ]\n  ret i32 %0\n}",
+        "ir_after": "define i32 @classify(i32 %x) {\nentry:\n  %cond1 = icmp sgt i32 %x, 0\n  br i1 %cond1, label %if.then, label %if.else\n\nif.then:\n  %cond2 = icmp sgt i32 %x, 100\n  br i1 %cond2, label %if.then2, label %if.else2\n\nif.then2:\n  br label %return\n\nif.else2:\n  br label %return\n\nif.else:\n  %cond3 = icmp slt i32 %x, 0\n  br i1 %cond3, label %if.then3, label %if.else3\n\nif.then3:\n  br label %return\n\nif.else3:\n  br label %return\n\nreturn:\n  %0 = phi i32 [ 2, %if.then2 ], [ 1, %if.else2 ], [ -1, %if.then3 ], [ 0, %if.else3 ]\n  ret i32 %0\n}",
+        "errors_before": 3,
+        "errors_after": 0,
+        "errors_fixed": [],
+        "errors_introduced": [],
+        "repair_time_s": 3.39,
+        "model_used": "Qwen/Qwen2.5-Coder-32B-Instruct"
+      }
+    ],
+    "total_iterations": 1,
+    "initial_errors": 3,
+    "final_errors": 0,
+    "repair_successful": true,
+    "total_repair_time_s": 3.3928263187408447,
+    "error_reduction": 3,
+    "error_reduction_pct": 100.0
+  },
+  {
+    "construct_id": "L4_02",
+    "model_name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "original_ir": "define i32 @array_sum(ptr %arr, i32 %n) {\nentry:\n  %sum = alloca i32\n  %i = alloca i32\n  store i32 0, i32* %sum\n  store i32 0, i32* %i\n\nloop:\n  %i.val = load i32, i32* %i\n  %cmp = icmp slt i32 %i.val, %n\n  br i1 %cmp, label %body, label %exit\n\nbody:\n  %i.val2 = load i32, i32* %i\n  %idx = mul i32 %i.val2, 4\n  %ptr = getelementptr i32, ptr %arr, i32 %i.val2\n  %val = load i32, i32* %ptr\n  %sum.val = load i32, i32* %sum\n  %new.sum = add i32 %sum.val, %val\n  store i32 %new.sum, i32* %sum\n  %i.next = add i32 %i.val2, 1\n  store i32 %i.next, i32* %i\n  br label %loop\n\nexit:\n  %sum.final = load i32, i32* %sum\n  ret i32 %sum.final\n}",
+    "final_ir": "define i32 @array_sum(ptr %arr, i32 %n) {\nentry:\n  %sum = alloca i32\n  %i = alloca i32\n  store i32 0, i32* %sum\n  store i32 0, i32* %i\n  br label %loop\n\nloop:\n  %i.val = load i32, i32* %i\n  %cmp = icmp slt i32 %i.val, %n\n  br i1 %cmp, label %body, label %exit\n\nbody:\n  %i.val2 = load i32, i32* %i\n  %idx = mul i32 %i.val2, 4\n  %ptr = getelementptr i32, ptr %arr, i32 %i.val2\n  %val = load i32, i32* %ptr\n  %sum.val = load i32, i32* %sum\n  %new.sum = add i32 %sum.val, %val\n  store i32 %new.sum, i32* %sum\n  %i.next = add i32 %i.val2, 1\n  store i32 %i.next, i32* %i\n  br label %loop\n\nexit:\n  %sum.final = load i32, i32* %sum\n  ret i32 %sum.final\n}",
+    "source_code": "int array_sum(int* arr, int n) {\n    int sum = 0;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];\n    }\n    return sum;\n}\n",
+    "reference_ir": "define i32 @array_sum(ptr %arr, i32 %n) {\nentry:\n  br label %for.cond\n\nfor.cond:\n  %sum = phi i32 [ 0, %entry ], [ %sum.next, %for.body ]\n  %i = phi i32 [ 0, %entry ], [ %i.next, %for.body ]\n  %cmp = icmp slt i32 %i, %n\n  br i1 %cmp, label %for.body, label %for.end\n\nfor.body:\n  %idx = sext i32 %i to i64\n  %ptr = getelementptr i32, ptr %arr, i64 %idx\n  %val = load i32, ptr %ptr\n  %sum.next = add i32 %sum, %val\n  %i.next = add i32 %i, 1\n  br label %for.cond\n\nfor.end:\n  ret i32 %sum\n}\n",
+    "iterations": [
+      {
+        "iteration": 1,
+        "ir_before": "define i32 @array_sum(ptr %arr, i32 %n) {\nentry:\n  %sum = alloca i32\n  %i = alloca i32\n  store i32 0, i32* %sum\n  store i32 0, i32* %i\n\nloop:\n  %i.val = load i32, i32* %i\n  %cmp = icmp slt i32 %i.val, %n\n  br i1 %cmp, label %body, label %exit\n\nbody:\n  %i.val2 = load i32, i32* %i\n  %idx = mul i32 %i.val2, 4\n  %ptr = getelementptr i32, ptr %arr, i32 %i.val2\n  %val = load i32, i32* %ptr\n  %sum.val = load i32, i32* %sum\n  %new.sum = add i32 %sum.val, %val\n  store i32 %new.sum, i32* %sum\n  %i.next = add i32 %i.val2, 1\n  store i32 %i.next, i32* %i\n  br label %loop\n\nexit:\n  %sum.final = load i32, i32* %sum\n  ret i32 %sum.final\n}",
+        "ir_after": "define i32 @array_sum(ptr %arr, i32 %n) {\nentry:\n  %sum = alloca i32\n  %i = alloca i32\n  store i32 0, i32* %sum\n  store i32 0, i32* %i\n  br label %loop\n\nloop:\n  %i.val = load i32, i32* %i\n  %cmp = icmp slt i32 %i.val, %n\n  br i1 %cmp, label %body, label %exit\n\nbody:\n  %i.val2 = load i32, i32* %i\n  %idx = mul i32 %i.val2, 4\n  %ptr = getelementptr i32, ptr %arr, i32 %i.val2\n  %val = load i32, i32* %ptr\n  %sum.val = load i32, i32* %sum\n  %new.sum = add i32 %sum.val, %val\n  store i32 %new.sum, i32* %sum\n  %i.next = add i32 %i.val2, 1\n  store i32 %i.next, i32* %i\n  br label %loop\n\nexit:\n  %sum.final = load i32, i32* %sum\n  ret i32 %sum.final\n}",
+        "errors_before": 1,
+        "errors_after": 0,
+        "errors_fixed": [],
+        "errors_introduced": [],
+        "repair_time_s": 4.03,
+        "model_used": "Qwen/Qwen2.5-Coder-32B-Instruct"
+      }
+    ],
+    "total_iterations": 1,
+    "initial_errors": 1,
+    "final_errors": 0,
+    "repair_successful": true,
+    "total_repair_time_s": 4.03167986869812,
+    "error_reduction": 1,
+    "error_reduction_pct": 100.0
+  },
+  {
+    "construct_id": "L5_01",
+    "model_name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "original_ir": "define i32 @manhattan_distance(ptr %p1, ptr %p2)",
+    "final_ir": "define i32 @manhattan_distance(ptr %p1, ptr %p2) {\nentry:\n  %dx = load i32, ptr %p1, align 4\n  %dx1 = load i32, ptr %p2, align 4\n  %dx2 = sub i32 %dx, %dx1\n  store i32 %dx2, ptr %dx, align 4\n  %dy = load i32, ptr %p1, align 4\n  %dy1 = load i32, ptr %p2, align 4\n  %dy2 = sub i32 %dy, %dy1\n  store i32 %dy2, ptr %dy, align 4\n  %dx3 = load i32, ptr %dx, align 4\n  %dx4 = icmp slt i32 %dx3, 0\n  br i1 %dx4, label %if.then, label %if.end\n\nif.then:\n  %dx5 = load i32, ptr %dx, align 4\n  %dx6 = sub i32 0, %dx5\n  store i32 %dx6, ptr %dx, align 4\n  br label %if.end\n\nif.end:\n  %dy3 = load i32, ptr %dy, align 4\n  %dy4 = icmp slt i32 %dy3, 0\n  br i1 %dy4, label %if.then1, label %if.end1\n\nif.then1:\n  %dy5 = load i32, ptr %dy, align 4\n  %dy6 = sub i32 0, %dy5\n  store i32 %dy6, ptr %dy, align 4\n  br label %if.end1\n\nif.end1:\n  %dx7 = load i32, ptr %dx, align 4\n  %dy7 = load i32, ptr %dy, align 4\n  %sum = add i32 %dx7, %dy7\n  ret i32 %sum\n}",
+    "source_code": "struct Point {\n    int x;\n    int y;\n};\n\nint manhattan_distance(struct Point* p1, struct Point* p2) {\n    int dx = p1->x - p2->x;\n    int dy = p1->y - p2->y;\n    if (dx < 0) dx = -dx;\n    if (dy < 0) dy = -dy;\n    return dx + dy;\n}\n",
+    "reference_ir": "%struct.Point = type { i32, i32 }\n\ndefine i32 @manhattan_distance(ptr %p1, ptr %p2) {\nentry:\n  %p1.x.ptr = getelementptr %struct.Point, ptr %p1, i32 0, i32 0\n  %p1.x = load i32, ptr %p1.x.ptr\n  %p2.x.ptr = getelementptr %struct.Point, ptr %p2, i32 0, i32 0\n  %p2.x = load i32, ptr %p2.x.ptr\n  %dx = sub i32 %p1.x, %p2.x\n\n  %p1.y.ptr = getelementptr %struct.Point, ptr %p1, i32 0, i32 1\n  %p1.y = load i32, ptr %p1.y.ptr\n  %p2.y.ptr = getelementptr %struct.Point, ptr %p2, i32 0, i32 1\n  %p2.y = load i32, ptr %p2.y.ptr\n  %dy = sub i32 %p1.y, %p2.y\n\n  %dx.neg = icmp slt i32 %dx, 0\n  %dx.abs = sub i32 0, %dx\n  %dx.final = select i1 %dx.neg, i32 %dx.abs, i32 %dx\n\n  %dy.neg = icmp slt i32 %dy, 0\n  %dy.abs = sub i32 0, %dy\n  %dy.final = select i1 %dy.neg, i32 %dy.abs, i32 %dy\n\n  %result = add i32 %dx.final, %dy.final\n  ret i32 %result\n}\n",
+    "iterations": [
+      {
+        "iteration": 1,
+        "ir_before": "define i32 @manhattan_distance(ptr %p1, ptr %p2)",
+        "ir_after": "define i32 @manhattan_distance(ptr %p1, ptr %p2) {\nentry:\n  %dx = load i32, ptr %p1, align 4\n  %dx1 = load i32, ptr %p2, align 4\n  %dx2 = sub i32 %dx, %dx1\n  store i32 %dx2, ptr %dx, align 4\n  %dy = load i32, ptr %p1, align 4\n  %dy1 = load i32, ptr %p2, align 4\n  %dy2 = sub i32 %dy, %dy1\n  store i32 %dy2, ptr %dy, align 4\n  %dx3 = load i32, ptr %dx, align 4\n  %dx4 = icmp slt i32 %dx3, 0\n  br i1 %dx4, label %if.then, label %if.end\n\nif.then:\n  %dx5 = load i32, ptr %dx, align 4\n  %dx6 = sub i32 0, %dx5\n  store i32 %dx6, ptr %dx, align 4\n  br label %if.end\n\nif.end:\n  %dy3 = load i32, ptr %dy, align 4\n  %dy4 = icmp slt i32 %dy3, 0\n  br i1 %dy4, label %if.then1, label %if.end1\n\nif.then1:\n  %dy5 = load i32, ptr %dy, align 4\n  %dy6 = sub i32 0, %dy5\n  store i32 %dy6, ptr %dy, align 4\n  br label %if.end1\n\nif.end1:\n  %dx7 = load i32, ptr %dx, align 4\n  %dy7 = load i32, ptr %dy, align 4\n  %sum = add i32 %dx7, %dy7\n  ret i32 %sum\n}",
+        "errors_before": 1,
+        "errors_after": 0,
+        "errors_fixed": [],
+        "errors_introduced": [],
+        "repair_time_s": 7.74,
+        "model_used": "Qwen/Qwen2.5-Coder-32B-Instruct"
+      }
+    ],
+    "total_iterations": 1,
+    "initial_errors": 1,
+    "final_errors": 0,
+    "repair_successful": true,
+    "total_repair_time_s": 7.74320387840271,
+    "error_reduction": 1,
+    "error_reduction_pct": 100.0
+  },
+  {
+    "construct_id": "L6_01",
+    "model_name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "original_ir": "define void @bubble_sort(ptr %arr, i32 %n) {\nentry:\n    %n_minus_1 = sub i32 %n, 1\n    br label %outer_loop\n\nouter_loop:\n    %i = phi i32 [ 0, %entry ], [ %i_next, %inner_loop_end ]\n    %cmp_i = icmp slt i32 %i, %n_minus_1\n    br i1 %cmp_i, label %inner_loop, label %outer_loop_end\n\ninner_loop:\n    %n_minus_i_minus_1 = sub i32 %n, %i\n    %n_minus_i_minus_2 = sub i32 %n_minus_i_minus_1, 1\n    %j = phi i32 [ 0, %outer_loop ], [ %j_next, %inner_loop_body ]\n    %cmp_j = icmp slt i32 %j, %n_minus_i_minus_2\n    br i1 %cmp_j, label %inner_loop_body, label %inner_loop_end\n\ninner_loop_body:\n    %arr_j = getelementptr inbounds i32, ptr %arr, i32 %j\n    %arr_j_val = load i32, ptr %arr_j\n    %arr_j_plus_1 = getelementptr inbounds i32, ptr %arr, i32 %j_plus_1\n    %arr_j_plus_1_val = load i32, ptr %arr_j_plus_1\n    %cmp_arr = icmp sgt i32 %arr_j_val, %arr_j_plus_1_val\n    br i1 %cmp_arr, label %swap, label %inner_loop_continue\n\nswap:\n    %tmp = alloca i32\n    store i32 %arr_j_val, ptr %tmp\n    store i32 %arr_j_plus_1_val, ptr %arr_j\n    %tmp_val = load i32, ptr %tmp\n    store i32 %tmp_val, ptr %arr_j_plus_1\n    br label %inner_loop_continue\n\ninner_loop_continue:\n    %j_next = add i32 %j, 1\n    br label %inner_loop\n\ninner_loop_end:\n    %i_next = add i32 %i, 1\n    br label %outer_loop\n\nouter_loop_end:\n    ret void\n}",
+    "final_ir": "define void @bubble_sort(ptr %arr, i32 %n) {\nentry:\n    %n_minus_1 = sub i32 %n, 1\n    br label %outer_loop\n\nouter_loop:\n    %i = phi i32 [ 0, %entry ], [ %i_next, %inner_loop_end ]\n    %cmp_i = icmp slt i32 %i, %n_minus_1\n    br i1 %cmp_i, label %inner_loop, label %outer_loop_end\n\ninner_loop:\n    %n_minus_i_minus_1 = sub i32 %n, %i\n    %n_minus_i_minus_2 = sub i32 %n_minus_i_minus_1, 1\n    %j = phi i32 [ 0, %outer_loop ], [ %j_next, %inner_loop_continue ]\n    %cmp_j = icmp slt i32 %j, %n_minus_i_minus_2\n    br i1 %cmp_j, label %inner_loop_body, label %inner_loop_end\n\ninner_loop_body:\n    %arr_j = getelementptr inbounds i32, ptr %arr, i32 %j\n    %arr_j_val = load i32, ptr %arr_j\n    %j_plus_1 = add i32 %j, 1\n    %arr_j_plus_1 = getelementptr inbounds i32, ptr %arr, i32 %j_plus_1\n    %arr_j_plus_1_val = load i32, ptr %arr_j_plus_1\n    %cmp_arr = icmp sgt i32 %arr_j_val, %arr_j_plus_1_val\n    br i1 %cmp_arr, label %swap, label %inner_loop_continue\n\nswap:\n    %tmp = alloca i32\n    store i32 %arr_j_val, ptr %tmp\n    store i32 %arr_j_plus_1_val, ptr %arr_j\n    %tmp_val = load i32, ptr %tmp\n    store i32 %tmp_val, ptr %arr_j_plus_1\n    br label %inner_loop_continue\n\ninner_loop_continue:\n    %j_next = add i32 %j, 1\n    br label %inner_loop\n\ninner_loop_end:\n    %i_next = add i32 %i, 1\n    br label %outer_loop\n\nouter_loop_end:\n    ret void\n}",
+    "source_code": "void bubble_sort(int* arr, int n) {\n    for (int i = 0; i < n - 1; i++) {\n        for (int j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j + 1]) {\n                int tmp = arr[j];\n                arr[j] = arr[j + 1];\n                arr[j + 1] = tmp;\n            }\n        }\n    }\n}\n",
+    "reference_ir": "define void @bubble_sort(ptr %arr, i32 %n) {\nentry:\n  %n_minus_1 = sub i32 %n, 1\n  br label %outer.cond\n\nouter.cond:\n  %i = phi i32 [ 0, %entry ], [ %i.next, %outer.inc ]\n  %cmp.outer = icmp slt i32 %i, %n_minus_1\n  br i1 %cmp.outer, label %inner.init, label %exit\n\ninner.init:\n  %inner.limit = sub i32 %n_minus_1, %i\n  br label %inner.cond\n\ninner.cond:\n  %j = phi i32 [ 0, %inner.init ], [ %j.next, %inner.inc ]\n  %cmp.inner = icmp slt i32 %j, %inner.limit\n  br i1 %cmp.inner, label %inner.body, label %outer.inc\n\ninner.body:\n  %j.ext = sext i32 %j to i64\n  %ptr.j = getelementptr i32, ptr %arr, i64 %j.ext\n  %val.j = load i32, ptr %ptr.j\n  %j1 = add i32 %j, 1\n  %j1.ext = sext i32 %j1 to i64\n  %ptr.j1 = getelementptr i32, ptr %arr, i64 %j1.ext\n  %val.j1 = load i32, ptr %ptr.j1\n  %cmp.swap = icmp sgt i32 %val.j, %val.j1\n  br i1 %cmp.swap, label %do.swap, label %inner.inc\n\ndo.swap:\n  store i32 %val.j1, ptr %ptr.j\n  store i32 %val.j, ptr %ptr.j1\n  br label %inner.inc\n\ninner.inc:\n  %j.next = add i32 %j, 1\n  br label %inner.cond\n\nouter.inc:\n  %i.next = add i32 %i, 1\n  br label %outer.cond\n\nexit:\n  ret void\n}\n",
+    "iterations": [
+      {
+        "iteration": 1,
+        "ir_before": "define void @bubble_sort(ptr %arr, i32 %n) {\nentry:\n    %n_minus_1 = sub i32 %n, 1\n    br label %outer_loop\n\nouter_loop:\n    %i = phi i32 [ 0, %entry ], [ %i_next, %inner_loop_end ]\n    %cmp_i = icmp slt i32 %i, %n_minus_1\n    br i1 %cmp_i, label %inner_loop, label %outer_loop_end\n\ninner_loop:\n    %n_minus_i_minus_1 = sub i32 %n, %i\n    %n_minus_i_minus_2 = sub i32 %n_minus_i_minus_1, 1\n    %j = phi i32 [ 0, %outer_loop ], [ %j_next, %inner_loop_body ]\n    %cmp_j = icmp slt i32 %j, %n_minus_i_minus_2\n    br i1 %cmp_j, label %inner_loop_body, label %inner_loop_end\n\ninner_loop_body:\n    %arr_j = getelementptr inbounds i32, ptr %arr, i32 %j\n    %arr_j_val = load i32, ptr %arr_j\n    %arr_j_plus_1 = getelementptr inbounds i32, ptr %arr, i32 %j_plus_1\n    %arr_j_plus_1_val = load i32, ptr %arr_j_plus_1\n    %cmp_arr = icmp sgt i32 %arr_j_val, %arr_j_plus_1_val\n    br i1 %cmp_arr, label %swap, label %inner_loop_continue\n\nswap:\n    %tmp = alloca i32\n    store i32 %arr_j_val, ptr %tmp\n    store i32 %arr_j_plus_1_val, ptr %arr_j\n    %tmp_val = load i32, ptr %tmp\n    store i32 %tmp_val, ptr %arr_j_plus_1\n    br label %inner_loop_continue\n\ninner_loop_continue:\n    %j_next = add i32 %j, 1\n    br label %inner_loop\n\ninner_loop_end:\n    %i_next = add i32 %i, 1\n    br label %outer_loop\n\nouter_loop_end:\n    ret void\n}",
+        "ir_after": "define void @bubble_sort(ptr %arr, i32 %n) {\nentry:\n    %n_minus_1 = sub i32 %n, 1\n    br label %outer_loop\n\nouter_loop:\n    %i = phi i32 [ 0, %entry ], [ %i_next, %inner_loop_end ]\n    %cmp_i = icmp slt i32 %i, %n_minus_1\n    br i1 %cmp_i, label %inner_loop, label %outer_loop_end\n\ninner_loop:\n    %n_minus_i_minus_1 = sub i32 %n, %i\n    %n_minus_i_minus_2 = sub i32 %n_minus_i_minus_1, 1\n    %j = phi i32 [ 0, %outer_loop ], [ %j_next, %inner_loop_continue ]\n    %cmp_j = icmp slt i32 %j, %n_minus_i_minus_2\n    br i1 %cmp_j, label %inner_loop_body, label %inner_loop_end\n\ninner_loop_body:\n    %arr_j = getelementptr inbounds i32, ptr %arr, i32 %j\n    %arr_j_val = load i32, ptr %arr_j\n    %j_plus_1 = add i32 %j, 1\n    %arr_j_plus_1 = getelementptr inbounds i32, ptr %arr, i32 %j_plus_1\n    %arr_j_plus_1_val = load i32, ptr %arr_j_plus_1\n    %cmp_arr = icmp sgt i32 %arr_j_val, %arr_j_plus_1_val\n    br i1 %cmp_arr, label %swap, label %inner_loop_continue\n\nswap:\n    %tmp = alloca i32\n    store i32 %arr_j_val, ptr %tmp\n    store i32 %arr_j_plus_1_val, ptr %arr_j\n    %tmp_val = load i32, ptr %tmp\n    store i32 %tmp_val, ptr %arr_j_plus_1\n    br label %inner_loop_continue\n\ninner_loop_continue:\n    %j_next = add i32 %j, 1\n    br label %inner_loop\n\ninner_loop_end:\n    %i_next = add i32 %i, 1\n    br label %outer_loop\n\nouter_loop_end:\n    ret void\n}",
+        "errors_before": 2,
+        "errors_after": 1,
+        "errors_fixed": [],
+        "errors_introduced": [],
+        "repair_time_s": 8.12,
+        "model_used": "Qwen/Qwen2.5-Coder-32B-Instruct"
+      },
+      {
+        "iteration": 2,
+        "ir_before": "define void @bubble_sort(ptr %arr, i32 %n) {\nentry:\n    %n_minus_1 = sub i32 %n, 1\n    br label %outer_loop\n\nouter_loop:\n    %i = phi i32 [ 0, %entry ], [ %i_next, %inner_loop_end ]\n    %cmp_i = icmp slt i32 %i, %n_minus_1\n    br i1 %cmp_i, label %inner_loop, label %outer_loop_end\n\ninner_loop:\n    %n_minus_i_minus_1 = sub i32 %n, %i\n    %n_minus_i_minus_2 = sub i32 %n_minus_i_minus_1, 1\n    %j = phi i32 [ 0, %outer_loop ], [ %j_next, %inner_loop_continue ]\n    %cmp_j = icmp slt i32 %j, %n_minus_i_minus_2\n    br i1 %cmp_j, label %inner_loop_body, label %inner_loop_end\n\ninner_loop_body:\n    %arr_j = getelementptr inbounds i32, ptr %arr, i32 %j\n    %arr_j_val = load i32, ptr %arr_j\n    %j_plus_1 = add i32 %j, 1\n    %arr_j_plus_1 = getelementptr inbounds i32, ptr %arr, i32 %j_plus_1\n    %arr_j_plus_1_val = load i32, ptr %arr_j_plus_1\n    %cmp_arr = icmp sgt i32 %arr_j_val, %arr_j_plus_1_val\n    br i1 %cmp_arr, label %swap, label %inner_loop_continue\n\nswap:\n    %tmp = alloca i32\n    store i32 %arr_j_val, ptr %tmp\n    store i32 %arr_j_plus_1_val, ptr %arr_j\n    %tmp_val = load i32, ptr %tmp\n    store i32 %tmp_val, ptr %arr_j_plus_1\n    br label %inner_loop_continue\n\ninner_loop_continue:\n    %j_next = add i32 %j, 1\n    br label %inner_loop\n\ninner_loop_end:\n    %i_next = add i32 %i, 1\n    br label %outer_loop\n\nouter_loop_end:\n    ret void\n}",
+        "ir_after": "define void @bubble_sort(ptr %arr, i32 %n) {\nentry:\n    %n_minus_1 = sub i32 %n, 1\n    br label %outer_loop\n\nouter_loop:\n    %i = phi i32 [ 0, %entry ], [ %i_next, %inner_loop_end ]\n    %cmp_i = icmp slt i32 %i, %n_minus_1\n    br i1 %cmp_i, label %inner_loop, label %outer_loop_end\n\ninner_loop:\n    %n_minus_i_minus_1 = sub i32 %n, %i\n    %n_minus_i_minus_2 = sub i32 %n_minus_i_minus_1, 1\n    %j = phi i32 [ 0, %outer_loop ], [ %j_next, %inner_loop_continue ]\n    %cmp_j = icmp slt i32 %j, %n_minus_i_minus_2\n    br i1 %cmp_j, label %inner_loop_body, label %inner_loop_end\n\ninner_loop_body:\n    %arr_j = getelementptr inbounds i32, ptr %arr, i32 %j\n    %arr_j_val = load i32, ptr %arr_j\n    %j_plus_1 = add i32 %j, 1\n    %arr_j_plus_1 = getelementptr inbounds i32, ptr %arr, i32 %j_plus_1\n    %arr_j_plus_1_val = load i32, ptr %arr_j_plus_1\n    %cmp_arr = icmp sgt i32 %arr_j_val, %arr_j_plus_1_val\n    br i1 %cmp_arr, label %swap, label %inner_loop_continue\n\nswap:\n    %tmp = alloca i32\n    store i32 %arr_j_val, ptr %tmp\n    store i32 %arr_j_plus_1_val, ptr %arr_j\n    %tmp_val = load i32, ptr %tmp\n    store i32 %tmp_val, ptr %arr_j_plus_1\n    br label %inner_loop_continue\n\ninner_loop_continue:\n    %j_next = add i32 %j, 1\n    br label %inner_loop\n\ninner_loop_end:\n    %i_next = add i32 %i, 1\n    br label %outer_loop\n\nouter_loop_end:\n    ret void\n}",
+        "errors_before": 1,
+        "errors_after": 1,
+        "errors_fixed": [],
+        "errors_introduced": [],
+        "repair_time_s": 9.05,
+        "model_used": "Qwen/Qwen2.5-Coder-32B-Instruct"
+      },
+      {
+        "iteration": 3,
+        "ir_before": "define void @bubble_sort(ptr %arr, i32 %n) {\nentry:\n    %n_minus_1 = sub i32 %n, 1\n    br label %outer_loop\n\nouter_loop:\n    %i = phi i32 [ 0, %entry ], [ %i_next, %inner_loop_end ]\n    %cmp_i = icmp slt i32 %i, %n_minus_1\n    br i1 %cmp_i, label %inner_loop, label %outer_loop_end\n\ninner_loop:\n    %n_minus_i_minus_1 = sub i32 %n, %i\n    %n_minus_i_minus_2 = sub i32 %n_minus_i_minus_1, 1\n    %j = phi i32 [ 0, %outer_loop ], [ %j_next, %inner_loop_continue ]\n    %cmp_j = icmp slt i32 %j, %n_minus_i_minus_2\n    br i1 %cmp_j, label %inner_loop_body, label %inner_loop_end\n\ninner_loop_body:\n    %arr_j = getelementptr inbounds i32, ptr %arr, i32 %j\n    %arr_j_val = load i32, ptr %arr_j\n    %j_plus_1 = add i32 %j, 1\n    %arr_j_plus_1 = getelementptr inbounds i32, ptr %arr, i32 %j_plus_1\n    %arr_j_plus_1_val = load i32, ptr %arr_j_plus_1\n    %cmp_arr = icmp sgt i32 %arr_j_val, %arr_j_plus_1_val\n    br i1 %cmp_arr, label %swap, label %inner_loop_continue\n\nswap:\n    %tmp = alloca i32\n    store i32 %arr_j_val, ptr %tmp\n    store i32 %arr_j_plus_1_val, ptr %arr_j\n    %tmp_val = load i32, ptr %tmp\n    store i32 %tmp_val, ptr %arr_j_plus_1\n    br label %inner_loop_continue\n\ninner_loop_continue:\n    %j_next = add i32 %j, 1\n    br label %inner_loop\n\ninner_loop_end:\n    %i_next = add i32 %i, 1\n    br label %outer_loop\n\nouter_loop_end:\n    ret void\n}",
+        "ir_after": "define void @bubble_sort(ptr %arr, i32 %n) {\nentry:\n    %n_minus_1 = sub i32 %n, 1\n    br label %outer_loop\n\nouter_loop:\n    %i = phi i32 [ 0, %entry ], [ %i_next, %inner_loop_end ]\n    %cmp_i = icmp slt i32 %i, %n_minus_1\n    br i1 %cmp_i, label %inner_loop, label %outer_loop_end\n\ninner_loop:\n    %n_minus_i_minus_1 = sub i32 %n, %i\n    %n_minus_i_minus_2 = sub i32 %n_minus_i_minus_1, 1\n    %j = phi i32 [ 0, %outer_loop ], [ %j_next, %inner_loop_continue ]\n    %cmp_j = icmp slt i32 %j, %n_minus_i_minus_2\n    br i1 %cmp_j, label %inner_loop_body, label %inner_loop_end\n\ninner_loop_body:\n    %arr_j = getelementptr inbounds i32, ptr %arr, i32 %j\n    %arr_j_val = load i32, ptr %arr_j\n    %j_plus_1 = add i32 %j, 1\n    %arr_j_plus_1 = getelementptr inbounds i32, ptr %arr, i32 %j_plus_1\n    %arr_j_plus_1_val = load i32, ptr %arr_j_plus_1\n    %cmp_arr = icmp sgt i32 %arr_j_val, %arr_j_plus_1_val\n    br i1 %cmp_arr, label %swap, label %inner_loop_continue\n\nswap:\n    %tmp = alloca i32\n    store i32 %arr_j_val, ptr %tmp\n    store i32 %arr_j_plus_1_val, ptr %arr_j\n    %tmp_val = load i32, ptr %tmp\n    store i32 %tmp_val, ptr %arr_j_plus_1\n    br label %inner_loop_continue\n\ninner_loop_continue:\n    %j_next = add i32 %j, 1\n    br label %inner_loop\n\ninner_loop_end:\n    %i_next = add i32 %i, 1\n    br label %outer_loop\n\nouter_loop_end:\n    ret void\n}",
+        "errors_before": 1,
+        "errors_after": 1,
+        "errors_fixed": [],
+        "errors_introduced": [],
+        "repair_time_s": 9.25,
+        "model_used": "Qwen/Qwen2.5-Coder-32B-Instruct"
+      }
+    ],
+    "total_iterations": 3,
+    "initial_errors": 2,
+    "final_errors": 1,
+    "repair_successful": false,
+    "total_repair_time_s": 26.420146942138672,
+    "error_reduction": 1,
+    "error_reduction_pct": 50.0
+  },
+  {
+    "construct_id": "L6_02",
+    "model_name": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "original_ir": "; Define the structure for Node\n%Node = type { i32, ptr }\n\n; Define the function\ndefine i32 @list_length(ptr %head) {\nentry:\n    ; Initialize count to 0\n    %count = alloca i32\n    store i32 0, i32* %count\n    \n    ; Initialize current to head\n    %current = alloca ptr\n    store ptr %head, ptr* %current\n    \n    ; Branch to the loop condition\n    br label %loop_condition\n\nloop_condition:\n    ; Load current\n    %current_val = load ptr, ptr* %current\n    \n    ; Check if current is null\n    %is_null = icmp eq ptr %current_val, null\n    br i1 %is_null, label %exit, label %loop_body\n\nloop_body:\n    ; Load count\n    %count_val = load i32, i32* %count\n    \n    ; Increment count\n    %new_count = add i32 %count_val, 1\n    store i32 %new_count, i32* %count\n    \n    ; Load current\n    %current_val = load ptr, ptr* %current\n    \n    ; Get the next node\n    %next_node = getelementptr inbounds %Node, ptr %current_val, i32 1\n    %next_node_val = load ptr, ptr* %next_node\n    \n    ; Store the next node as current\n    store ptr %next_node_val, ptr* %current\n    \n    ; Branch back to the loop condition\n    br label %loop_condition\n\nexit:\n    ; Load the final count\n    %final_count = load i32, i32* %count\n    \n    ; Return the final count\n    ret i32 %final_count\n}",
+    "final_ir": "; Define the structure for Node\n%Node = type { i32, ptr }\n\n; Define the function\ndefine i32 @list_length(ptr %head) {\nentry:\n    ; Initialize count to 0\n    %count = alloca i32\n    store i32 0, i32* %count\n    \n    ; Initialize current to head\n    %current = alloca ptr\n    store ptr %head, ptr* %current\n    \n    ; Branch to the loop condition\n    br label %loop_condition\n\nloop_condition:\n    ; Load current\n    %current_val = load ptr, ptr* %current\n    \n    ; Check if current is null\n    %is_null = icmp eq ptr %current_val, null\n    br i1 %is_null, label %exit, label %loop_body\n\nloop_body:\n    ; Load count\n    %count_val = load i32, i32* %count\n    \n    ; Increment count\n    %new_count = add i32 %count_val, 1\n    store i32 %new_count, i32* %count\n    \n    ; Load current\n    %current_val2 = load ptr, ptr* %current\n    \n    ; Get the next node\n    %next_node = getelementptr inbounds %Node, ptr %current_val2, i32 1\n    %next_node_val = load ptr, ptr* %next_node\n    \n    ; Store the next node as current\n    store ptr %next_node_val, ptr* %current\n    \n    ; Branch back to the loop condition\n    br label %loop_condition\n\nexit:\n    ; Load the final count\n    %final_count = load i32, i32* %count\n    \n    ; Return the final count\n    ret i32 %final_count\n}",
+    "source_code": "struct Node {\n    int value;\n    struct Node* next;\n};\n\nint list_length(struct Node* head) {\n    int count = 0;\n    struct Node* current = head;\n    while (current != 0) {\n        count = count + 1;\n        current = current->next;\n    }\n    return count;\n}\n",
+    "reference_ir": "%struct.Node = type { i32, ptr }\n\ndefine i32 @list_length(ptr %head) {\nentry:\n  br label %while.cond\n\nwhile.cond:\n  %count = phi i32 [ 0, %entry ], [ %count.next, %while.body ]\n  %current = phi ptr [ %head, %entry ], [ %next, %while.body ]\n  %cmp = icmp ne ptr %current, null\n  br i1 %cmp, label %while.body, label %while.end\n\nwhile.body:\n  %count.next = add i32 %count, 1\n  %next.ptr = getelementptr %struct.Node, ptr %current, i32 0, i32 1\n  %next = load ptr, ptr %next.ptr\n  br label %while.cond\n\nwhile.end:\n  ret i32 %count\n}\n",
+    "iterations": [
+      {
+        "iteration": 1,
+        "ir_before": "; Define the structure for Node\n%Node = type { i32, ptr }\n\n; Define the function\ndefine i32 @list_length(ptr %head) {\nentry:\n    ; Initialize count to 0\n    %count = alloca i32\n    store i32 0, i32* %count\n    \n    ; Initialize current to head\n    %current = alloca ptr\n    store ptr %head, ptr* %current\n    \n    ; Branch to the loop condition\n    br label %loop_condition\n\nloop_condition:\n    ; Load current\n    %current_val = load ptr, ptr* %current\n    \n    ; Check if current is null\n    %is_null = icmp eq ptr %current_val, null\n    br i1 %is_null, label %exit, label %loop_body\n\nloop_body:\n    ; Load count\n    %count_val = load i32, i32* %count\n    \n    ; Increment count\n    %new_count = add i32 %count_val, 1\n    store i32 %new_count, i32* %count\n    \n    ; Load current\n    %current_val = load ptr, ptr* %current\n    \n    ; Get the next node\n    %next_node = getelementptr inbounds %Node, ptr %current_val, i32 1\n    %next_node_val = load ptr, ptr* %next_node\n    \n    ; Store the next node as current\n    store ptr %next_node_val, ptr* %current\n    \n    ; Branch back to the loop condition\n    br label %loop_condition\n\nexit:\n    ; Load the final count\n    %final_count = load i32, i32* %count\n    \n    ; Return the final count\n    ret i32 %final_count\n}",
+        "ir_after": "; Define the structure for Node\n%Node = type { i32, ptr }\n\n; Define the function\ndefine i32 @list_length(ptr %head) {\nentry:\n    ; Initialize count to 0\n    %count = alloca i32\n    store i32 0, i32* %count\n    \n    ; Initialize current to head\n    %current = alloca ptr\n    store ptr %head, ptr* %current\n    \n    ; Branch to the loop condition\n    br label %loop_condition\n\nloop_condition:\n    ; Load current\n    %current_val = load ptr, ptr* %current\n    \n    ; Check if current is null\n    %is_null = icmp eq ptr %current_val, null\n    br i1 %is_null, label %exit, label %loop_body\n\nloop_body:\n    ; Load count\n    %count_val = load i32, i32* %count\n    \n    ; Increment count\n    %new_count = add i32 %count_val, 1\n    store i32 %new_count, i32* %count\n    \n    ; Load current\n    %current_val2 = load ptr, ptr* %current\n    \n    ; Get the next node\n    %next_node = getelementptr inbounds %Node, ptr %current_val2, i32 1\n    %next_node_val = load ptr, ptr* %next_node\n    \n    ; Store the next node as current\n    store ptr %next_node_val, ptr* %current\n    \n    ; Branch back to the loop condition\n    br label %loop_condition\n\nexit:\n    ; Load the final count\n    %final_count = load i32, i32* %count\n    \n    ; Return the final count\n    ret i32 %final_count\n}",
+        "errors_before": 1,
+        "errors_after": 0,
+        "errors_fixed": [],
+        "errors_introduced": [],
+        "repair_time_s": 6.8,
+        "model_used": "Qwen/Qwen2.5-Coder-32B-Instruct"
+      }
+    ],
+    "total_iterations": 1,
+    "initial_errors": 1,
+    "final_errors": 0,
+    "repair_successful": true,
+    "total_repair_time_s": 6.804627180099487,
+    "error_reduction": 1,
+    "error_reduction_pct": 100.0
+  }
+]
