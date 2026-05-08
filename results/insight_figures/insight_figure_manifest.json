@@ -1,0 +1,37 @@
+{
+    "generated_at":  "2026-05-04T12:07:43",
+    "sources":  [
+                    "generation_results.json",
+                    "failure_analysis.json",
+                    "detailed_examples.json",
+                    "repair_results.json",
+                    "repair_statistics.json"
+                ],
+    "figures":  [
+                    "construct_model_validity_heatmap.png",
+                    "construct_prompt_validity_heatmap.png",
+                    "failure_subcategory_pareto.png",
+                    "model_failure_class_stacked.png",
+                    "latency_validity_scatter.png",
+                    "repair_error_trajectories.png",
+                    "ir_complexity_ratio_scatter.png",
+                    "prompt_verbosity_inflation.png"
+                ],
+    "repair_summary":  {
+                           "total_repairs_attempted":  8,
+                           "successful_repairs":  7,
+                           "success_rate_pct":  87.5,
+                           "total_iterations":  10,
+                           "avg_iterations_per_repair":  1.2,
+                           "total_initial_errors":  11,
+                           "total_final_errors":  1,
+                           "total_errors_fixed":  10,
+                           "error_reduction_pct":  90.9,
+                           "total_repair_time_s":  61.3,
+                           "avg_repair_time_s":  7.7,
+                           "avg_error_reduction_per_iteration":  1.0,
+                           "iterations_with_improvement":  8,
+                           "iterations_with_regression":  0,
+                           "iterations_with_no_change":  2
+                       }
+}

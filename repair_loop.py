@@ -1,7 +1,7 @@
 """
 Repair Loop Architecture — Iterative validation and LLM-based repair.
 
-Based on the AIvril 2 (arXiv:2412.04485) three-tier architecture:
+Three-tier architecture:
   Tier 1: Syntactic repair (compile errors)
   Tier 2: SSA/Type repair (verification errors)
   Tier 3: Semantic repair (functional errors via test comparison)

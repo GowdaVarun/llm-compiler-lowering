@@ -1,0 +1,14 @@
+{
+    "generated_at":  "2026-05-04T11:59:00",
+    "source_files":  [
+                         "results\\failure_analysis.json",
+                         "results\\repair_statistics.json"
+                     ],
+    "figures":  [
+                    "model_validity.png",
+                    "level_validity.png",
+                    "prompt_validity.png",
+                    "failure_taxonomy.png",
+                    "repair_effectiveness.png"
+                ]
+}
