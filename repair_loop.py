@@ -14,9 +14,9 @@ import time
 import json
 from dataclasses import dataclass, field, asdict
 from typing import Optional
-from huggingface_hub import InferenceClient
 
 from ir_validator import validate_ir, LLVMIRValidator, ErrorCategory
+from llm_clients import chat_completion
 
 
 # ============================================================================
@@ -108,15 +108,19 @@ class RepairResult:
 class RepairLoop:
     """Iterative LLM-based repair of invalid LLVM IR."""
 
-    def __init__(self, hf_token=None, repair_model_id=None, provider="auto", max_iterations=3):
+    def __init__(
+        self,
+        hf_token=None,
+        repair_model_id=None,
+        provider="auto",
+        max_iterations=3,
+        ollama_base_url=None,
+    ):
         self.hf_token = hf_token or os.environ.get("HF_TOKEN")
         self.repair_model_id = repair_model_id or "Qwen/Qwen2.5-Coder-32B-Instruct"
         self.provider = provider
         self.max_iterations = max_iterations
-        self.client = InferenceClient(
-            provider=self.provider,
-            api_key=self.hf_token,
-        )
+        self.ollama_base_url = ollama_base_url or os.environ.get("OLLAMA_BASE_URL")
 
     def repair(self, construct, generated_ir: str, verbose=True) -> RepairResult:
         """
@@ -172,13 +176,15 @@ class RepairLoop:
 
             start_time = time.time()
             try:
-                response = self.client.chat.completions.create(
-                    model=self.repair_model_id,
+                raw = chat_completion(
+                    model_id=self.repair_model_id,
                     messages=messages,
                     max_tokens=4096,
                     temperature=0.1,
+                    provider=self.provider,
+                    hf_token=self.hf_token,
+                    base_url=self.ollama_base_url,
                 )
-                raw = response.choices[0].message.content
                 repaired_ir, _ = extract_ir_from_response(raw)
                 elapsed = time.time() - start_time
             except Exception as e:

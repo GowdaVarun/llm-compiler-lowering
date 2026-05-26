@@ -11,7 +11,8 @@ import time
 import re
 from dataclasses import dataclass, field, asdict
 from typing import Optional
-from huggingface_hub import InferenceClient
+
+from llm_clients import chat_completion
 
 
 # ============================================================================
@@ -78,6 +79,7 @@ class ModelConfig:
     max_tokens: int = 4096
     temperature: float = 0.1
     supports_cot: bool = False
+    base_url: Optional[str] = None
 
 
 # Models ranked by IR generation capability (from literature)
@@ -196,19 +198,20 @@ def extract_ir_from_response(response_text: str) -> tuple:
 class IRGenerationPipeline:
     """Generates LLVM IR using multiple LLMs and prompt strategies."""
 
-    def __init__(self, hf_token: Optional[str] = None, models: Optional[list] = None):
+    def __init__(
+        self,
+        hf_token: Optional[str] = None,
+        models: Optional[list] = None,
+        ollama_base_url: Optional[str] = None,
+    ):
         self.hf_token = hf_token or os.environ.get("HF_TOKEN")
         self.models = models or MODELS
         self.results = []
+        self.ollama_base_url = ollama_base_url or os.environ.get("OLLAMA_BASE_URL")
 
     def generate_single(self, construct, model_config: ModelConfig,
                         prompt_strategy: str = "basic") -> GenerationResult:
         """Generate IR for a single construct with a single model."""
-        client = InferenceClient(
-            provider=model_config.provider,
-            api_key=self.hf_token,
-        )
-
         # Build prompt
         if prompt_strategy == "cot":
             system = SYSTEM_PROMPT_COT
@@ -230,13 +233,15 @@ class IRGenerationPipeline:
 
         start_time = time.time()
         try:
-            response = client.chat.completions.create(
-                model=model_config.model_id,
+            raw = chat_completion(
+                model_id=model_config.model_id,
                 messages=messages,
                 max_tokens=model_config.max_tokens,
                 temperature=model_config.temperature,
+                provider=model_config.provider,
+                hf_token=self.hf_token,
+                base_url=model_config.base_url or self.ollama_base_url,
             )
-            raw = response.choices[0].message.content
             elapsed = time.time() - start_time
 
             ir_text, thinking = extract_ir_from_response(raw)

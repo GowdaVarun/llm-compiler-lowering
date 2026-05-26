@@ -4,13 +4,13 @@
 
 ## 📊 Key Results
 
-| Metric | Value |
-|--------|-------|
-| **Total Generations** | 118 (15 constructs × 4 models × 2 strategies) |
-| **Overall Validity Rate** | 89.8% |
-| **Best Model** | Llama-3.3-70B (100.0% valid) |
-| **Repair Success Rate** | 87.5% (7/8 constructs fully repaired) |
-| **Error Reduction via Repair** | 90.9% |
+| Metric                         | Value                                         |
+| ------------------------------ | --------------------------------------------- |
+| **Total Generations**          | 118 (15 constructs × 4 models × 2 strategies) |
+| **Overall Validity Rate**      | 89.8%                                         |
+| **Best Model**                 | Llama-3.3-70B (100.0% valid)                  |
+| **Repair Success Rate**        | 87.5% (7/8 constructs fully repaired)         |
+| **Error Reduction via Repair** | 90.9%                                         |
 
 ## 🏗️ Project Structure
 
@@ -36,41 +36,43 @@
 
 15 C constructs organized by complexity:
 
-| Level | Category | Constructs | Validity Rate |
-|-------|----------|-----------|---------------|
-| L1 | Arithmetic & Assignment | 4 | **100.0%** |
-| L2 | Control Flow | 4 | 84.4% |
-| L3 | Functions & Calling | 2 | **100.0%** |
-| L4 | Pointers & Memory | 2 | 86.7% |
-| L5 | Structs & Aggregates | 1 | 87.5% |
-| L6 | Composite | 2 | 75.0% |
+| Level | Category                | Constructs | Validity Rate |
+| ----- | ----------------------- | ---------- | ------------- |
+| L1    | Arithmetic & Assignment | 4          | **100.0%**    |
+| L2    | Control Flow            | 4          | 84.4%         |
+| L3    | Functions & Calling     | 2          | **100.0%**    |
+| L4    | Pointers & Memory       | 2          | 86.7%         |
+| L5    | Structs & Aggregates    | 1          | 87.5%         |
+| L6    | Composite               | 2          | 75.0%         |
 
 ## 🤖 Models Evaluated
 
-| Model | Valid Rate | Compilable | Avg Time |
-|-------|-----------|-----------|----------|
-| **Llama-3.3-70B** | **100.0%** | 100.0% | 1.53s |
-| Qwen2.5-Coder-32B | 93.3% | 100.0% | 3.67s |
-| Llama-3.1-8B | 89.7% | 89.7% | 0.33s |
-| Qwen2.5-72B | 75.9% | 82.8% | 22.8s |
+| Model             | Valid Rate | Compilable | Avg Time |
+| ----------------- | ---------- | ---------- | -------- |
+| **Llama-3.3-70B** | **100.0%** | 100.0%     | 1.53s    |
+| Qwen2.5-Coder-32B | 93.3%      | 100.0%     | 3.67s    |
+| Llama-3.1-8B      | 89.7%      | 89.7%      | 0.33s    |
+| Qwen2.5-72B       | 75.9%      | 82.8%      | 22.8s    |
 
 ## 🐛 Failure Taxonomy
 
-| Class | Category | Count | % of Total |
-|-------|----------|-------|-----------|
-| CLASS_1 | Structural/Syntactic | 14 | 24.6% |
-| CLASS_2 | **Control Flow** | **38** | **66.7%** |
-| CLASS_4 | Semantic/Functional | 5 | 8.8% |
+| Class   | Category             | Count  | % of Total |
+| ------- | -------------------- | ------ | ---------- |
+| CLASS_1 | Structural/Syntactic | 14     | 24.6%      |
+| CLASS_2 | **Control Flow**     | **38** | **66.7%**  |
+| CLASS_4 | Semantic/Functional  | 5      | 8.8%       |
 
 **Top failure sub-categories:**
+
 1. Incorrect phi node predecessors (2.3): 13 instances
-2. Unreachable/extra code paths (2.5): 13 instances  
+2. Unreachable/extra code paths (2.5): 13 instances
 3. SSA violations (1.1): 12 instances
 4. Loop approximation (2.4): 10 instances
 
 ## 🔧 Repair Loop
 
 Based on AIvril 2 (arXiv:2412.04485) architecture:
+
 - **87.5% success rate** — 7 of 8 failed constructs fully repaired
 - **90.9% error reduction** — 11 → 1 total errors
 - **Average 1.2 iterations** — most repairs succeed in a single pass
@@ -96,9 +98,21 @@ export HF_TOKEN=your_token_here
 # Run the full pipeline
 python run_pipeline_v2.py
 
+# Run full pipeline on local Ollama (same repair loop + report flow)
+python run_pipeline_ollama.py --model qwen2.5-coder:32b
+
+# Example: run only selected construct levels
+python run_pipeline_ollama.py --model llama3.1:8b --levels 1,2,3
+
 # Generate report from existing results
 python report_generator.py results/
 ```
+
+`source_constructs.py` is the construct registry itself (15 predefined constructs).
+There is currently no separate generator script that auto-creates those constructs.
+
+`run_pipeline_ollama.py` now requires LLVM CLI tools in PATH (`llvm-as`, `opt`) and
+saves outputs by default to `ollama_results/` (including LLVM tool validation JSON files).
 
 ## 📚 References
 
