@@ -12,6 +12,10 @@ Returns a detailed ValidationReport with categorized errors.
 """
 
 import re
+import os
+import shutil
+import subprocess
+import tempfile
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
@@ -666,6 +670,122 @@ def validate_ir(ir_text: str) -> ValidationReport:
     """Convenience function to validate LLVM IR text."""
     validator = LLVMIRValidator(ir_text)
     return validator.validate()
+
+
+def detect_llvm_tools() -> dict:
+    """Detect LLVM tools used for assembly/verification."""
+    llvm_as = shutil.which("llvm-as")
+    opt = shutil.which("opt")
+    return {
+        "llvm_as": llvm_as,
+        "opt": opt,
+        "missing": [name for name, path in (("llvm-as", llvm_as), ("opt", opt)) if not path],
+    }
+
+
+def validate_ir_with_llvm_tools(
+    ir_text: str,
+    llvm_as_path: Optional[str] = None,
+    opt_path: Optional[str] = None,
+    timeout_s: int = 20,
+) -> dict:
+    """
+    Validate LLVM IR using LLVM CLI tools:
+      1) llvm-as (parse/assemble)
+      2) opt verifier pass (supports old and new opt flag styles)
+    """
+    if llvm_as_path is None or opt_path is None:
+        detected = detect_llvm_tools()
+        llvm_as_path = llvm_as_path or detected["llvm_as"]
+        opt_path = opt_path or detected["opt"]
+
+    result = {
+        "tools": {
+            "llvm-as": llvm_as_path,
+            "opt": opt_path,
+        },
+        "assembly_ok": False,
+        "verify_ok": False,
+        "is_valid": False,
+        "commands": [],
+        "stderr": [],
+    }
+
+    if not llvm_as_path or not opt_path:
+        missing = []
+        if not llvm_as_path:
+            missing.append("llvm-as")
+        if not opt_path:
+            missing.append("opt")
+        result["stderr"].append(f"Missing LLVM tools: {', '.join(missing)}")
+        return result
+
+    validator = LLVMIRValidator(ir_text)
+    validator._strip_code_fences()
+    normalized_ir = validator.ir_text
+
+    with tempfile.TemporaryDirectory(prefix="llvm_ir_check_") as tmpdir:
+        input_ll = os.path.join(tmpdir, "input.ll")
+        output_bc = os.path.join(tmpdir, "output.bc")
+        with open(input_ll, "w", encoding="utf-8") as f:
+            f.write(normalized_ir)
+
+        assemble_cmd = [llvm_as_path, input_ll, "-o", output_bc]
+        result["commands"].append(" ".join(assemble_cmd))
+        assemble_proc = subprocess.run(
+            assemble_cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout_s,
+            check=False,
+        )
+        if assemble_proc.returncode != 0:
+            result["stderr"].append(assemble_proc.stderr.strip())
+            return result
+        result["assembly_ok"] = True
+
+        verify_cmd_candidates = [
+            [opt_path, "-verify", "-disable-output", output_bc],
+            [opt_path, "-disable-output", "-verify", output_bc],
+            [opt_path, "-passes=verify", "-disable-output", output_bc],
+            [opt_path, "-disable-output", "-passes=verify", output_bc],
+        ]
+        compatibility_markers = (
+            "unknown command line argument",
+            "unknown argument",
+            "unknown pass name",
+            "for the --passes option",
+            "did you mean",
+            "syntax for the new pass manager is not supported",
+            "please use `opt -passes=",
+        )
+
+        last_error = ""
+        for verify_cmd in verify_cmd_candidates:
+            result["commands"].append(" ".join(verify_cmd))
+            verify_proc = subprocess.run(
+                verify_cmd,
+                capture_output=True,
+                text=True,
+                timeout=timeout_s,
+                check=False,
+            )
+            if verify_proc.returncode == 0:
+                result["verify_ok"] = True
+                result["is_valid"] = True
+                return result
+
+            stderr = (verify_proc.stderr or "").strip()
+            stdout = (verify_proc.stdout or "").strip()
+            message = stderr or stdout or f"opt exited with code {verify_proc.returncode}"
+            last_error = message
+
+            if not any(marker in message.lower() for marker in compatibility_markers):
+                result["stderr"].append(message)
+                return result
+
+        result["stderr"].append(last_error)
+        return result
 
 
 def validate_and_compare(generated_ir: str, reference_ir: str) -> dict:
