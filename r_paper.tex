@@ -134,7 +134,7 @@ The results indicate that larger parameter count alone does not predict lowering
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\columnwidth]{results/insight_figures/latency_validity_scatter.png}
+\includegraphics[width=\columnwidth]{results/figures/latency_validity_scatter.png}
 \caption{Average generation latency versus validation rate. The fastest model is not the most valid, and the slowest model is not the most reliable.}
 \label{fig:latency-validity}
 \end{figure}
@@ -165,7 +165,7 @@ Linked List Length & Composite & 87.5\\
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\columnwidth]{results/insight_figures/ir_complexity_ratio_scatter.png}
+\includegraphics[width=\columnwidth]{results/figures/ir_complexity_ratio_scatter.png}
 \caption{Generated IR complexity relative to reference IR. Invalid outputs tend to appear among examples whose generated IR is inflated relative to the reference lowering.}
 \label{fig:complexity-ratio}
 \end{figure}
@@ -189,7 +189,7 @@ Chain-of-thought & 58 & 84.5\\
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\columnwidth]{results/insight_figures/prompt_verbosity_inflation.png}
+\includegraphics[width=\columnwidth]{results/figures/prompt_verbosity_inflation.png}
 \caption{Prompt verbosity inflation computed as raw response length divided by extracted IR length. Chain-of-thought prompting often expands responses beyond the IR artifact itself.}
 \label{fig:verbosity}
 \end{figure}
@@ -199,7 +199,7 @@ The validator records 57 total failure instances. As shown in Fig.~\ref{fig:fail
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\columnwidth]{results/insight_figures/failure_subcategory_pareto.png}
+\includegraphics[width=\columnwidth]{results/figures/failure_subcategory_pareto.png}
 \caption{Failure subcategory Pareto chart. Incorrect phi-node predecessors, unreachable or extra code paths, SSA violations, and loop approximation explain most of the observed failures.}
 \label{fig:failure-pareto}
 \end{figure}
@@ -208,7 +208,7 @@ The most frequent subcategories are incorrect phi-node predecessors and unreacha
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\columnwidth]{results/insight_figures/model_failure_class_stacked.png}
+\includegraphics[width=\columnwidth]{results/figures/model_failure_class_stacked.png}
 \caption{Failure-class mix by model. Control-flow errors dominate across models, while structural and semantic failures remain secondary but non-negligible.}
 \label{fig:model-failure-mix}
 \end{figure}
@@ -218,7 +218,7 @@ The repair loop is applied to 8 failed constructs. It succeeds on 7 of them, giv
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\columnwidth]{results/insight_figures/repair_error_trajectories.png}
+\includegraphics[width=\columnwidth]{results/figures/repair_error_trajectories.png}
 \caption{Repair-loop error trajectories by construct. Most repairs converge to zero validation errors after one iteration, while one composite construct remains partially repaired.}
 \label{fig:repair-trajectories}
 \end{figure}

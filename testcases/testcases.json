@@ -1,0 +1,168 @@
+[
+  {
+    "id": "L1_01",
+    "name": "Simple Addition",
+    "level": 1,
+    "category": "arithmetic",
+    "function": "add(a, b)",
+    "inputs": [[3, 4], [0, 0], [-1, 1]],
+    "expected_outputs": [7, 0, 0],
+    "ir_expectations": ["add i32", "ret i32", "two i32 parameters"]
+  },
+  {
+    "id": "L1_02",
+    "name": "Mixed Arithmetic",
+    "level": 1,
+    "category": "arithmetic",
+    "function": "compute(x, y, z)",
+    "inputs": [[2, 3, 4], [0, 5, 1]],
+    "expected_outputs": [9, 0],
+    "ir_expectations": ["mul i32", "add i32", "sub i32", "constant 1"]
+  },
+  {
+    "id": "L1_03",
+    "name": "Floating Point Arithmetic",
+    "level": 1,
+    "category": "arithmetic",
+    "function": "average(a, b)",
+    "inputs": [[3.0, 5.0], [0.0, 0.0]],
+    "expected_outputs": [4.0, 0.0],
+    "ir_expectations": ["fadd float", "fdiv float", "float constant 2.0"]
+  },
+  {
+    "id": "L1_04",
+    "name": "Bitwise Operations",
+    "level": 1,
+    "category": "arithmetic",
+    "function": "bitops(a, b)",
+    "inputs": [[5, 3]],
+    "expected_outputs": [7],
+    "ir_expectations": ["and i32", "xor i32", "shl i32", "or i32"]
+  },
+  {
+    "id": "L2_01",
+    "name": "If-Else Branch",
+    "level": 2,
+    "category": "control_flow",
+    "function": "max(a, b)",
+    "inputs": [[5, 3], [2, 7], [4, 4]],
+    "expected_outputs": [5, 7, 4],
+    "ir_expectations": ["icmp sgt", "br i1", "two basic blocks", "conditional branch"]
+  },
+  {
+    "id": "L2_02",
+    "name": "While Loop",
+    "level": 2,
+    "category": "control_flow",
+    "function": "sum_to_n(n)",
+    "inputs": [[5], [0], [10]],
+    "expected_outputs": [10, 0, 45],
+    "ir_expectations": ["phi nodes", "loop back-edge", "icmp slt", "three basic blocks"]
+  },
+  {
+    "id": "L2_03",
+    "name": "For Loop",
+    "level": 2,
+    "category": "control_flow",
+    "function": "factorial(n)",
+    "inputs": [[5], [1], [0]],
+    "expected_outputs": [120, 1, 1],
+    "ir_expectations": ["phi nodes", "mul i32", "icmp sle", "loop structure"]
+  },
+  {
+    "id": "L2_04",
+    "name": "Nested If-Else",
+    "level": 2,
+    "category": "control_flow",
+    "function": "classify(x)",
+    "inputs": [[150], [50], [-5], [0]],
+    "expected_outputs": [2, 1, -1, 0],
+    "ir_expectations": ["multiple basic blocks", "nested branches", "icmp sgt", "icmp slt"]
+  },
+  {
+    "id": "L3_01",
+    "name": "Function Call",
+    "level": 3,
+    "category": "functions",
+    "function": "sum_of_squares(a, b)",
+    "inputs": [[3, 4]],
+    "expected_outputs": [25],
+    "ir_expectations": ["call instruction", "multiple function definitions", "i32 return"]
+  },
+  {
+    "id": "L3_02",
+    "name": "Recursive Function",
+    "level": 3,
+    "category": "functions",
+    "function": "fib(n)",
+    "inputs": [[0], [1], [5], [10]],
+    "expected_outputs": [0, 1, 5, 55],
+    "ir_expectations": ["recursive call", "icmp sle", "sub i32", "two call instructions"]
+  },
+  {
+    "id": "L4_01",
+    "name": "Pointer Dereference",
+    "level": 4,
+    "category": "memory",
+    "function": "swap(int* a, int* b)",
+    "inputs": [],
+    "expected_outputs": [],
+    "ir_expectations": ["load i32", "store i32", "ptr type", "void return"]
+  },
+  {
+    "id": "L4_02",
+    "name": "Array Sum",
+    "level": 4,
+    "category": "memory",
+    "function": "array_sum(int* arr, int n)",
+    "inputs": [],
+    "expected_outputs": [],
+    "ir_expectations": ["getelementptr", "sext", "load from computed pointer", "phi nodes"]
+  },
+  {
+    "id": "L5_01",
+    "name": "Struct Field Access",
+    "level": 5,
+    "category": "structs",
+    "function": "manhattan_distance(struct Point* p1, struct Point* p2)",
+    "inputs": [],
+    "expected_outputs": [],
+    "ir_expectations": ["struct type", "getelementptr with struct", "select instruction", "abs pattern"]
+  },
+  {
+    "id": "L6_01",
+    "name": "Bubble Sort",
+    "level": 6,
+    "category": "composite",
+    "function": "bubble_sort(int* arr, int n)",
+    "inputs": [],
+    "expected_outputs": [],
+    "ir_expectations": [
+      "nested loops",
+      "phi nodes",
+      "getelementptr",
+      "load/store",
+      "icmp sgt",
+      "conditional swap",
+      "sext",
+      "multiple basic blocks"
+    ]
+  },
+  {
+    "id": "L6_02",
+    "name": "Linked List Length",
+    "level": 6,
+    "category": "composite",
+    "function": "list_length(struct Node* head)",
+    "inputs": [],
+    "expected_outputs": [],
+    "ir_expectations": [
+      "struct with pointer field",
+      "phi nodes",
+      "null pointer comparison",
+      "getelementptr into struct",
+      "load ptr",
+      "pointer traversal loop"
+    ]
+  }
+]

@@ -676,6 +676,30 @@ def detect_llvm_tools() -> dict:
     """Detect LLVM tools used for assembly/verification."""
     llvm_as = shutil.which("llvm-as")
     opt = shutil.which("opt")
+
+    # If on Windows and native tools are not found, check WSL
+    if os.name == 'nt' and (not llvm_as or not opt):
+        try:
+            res_as = subprocess.run(
+                ["wsl", "llvm-as", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False
+            )
+            res_opt = subprocess.run(
+                ["wsl", "opt", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False
+            )
+            if res_as.returncode == 0 and res_opt.returncode == 0:
+                llvm_as = "wsl llvm-as"
+                opt = "wsl opt"
+        except Exception:
+            pass
+
     return {
         "llvm_as": llvm_as,
         "opt": opt,
@@ -724,13 +748,31 @@ def validate_ir_with_llvm_tools(
     validator._strip_code_fences()
     normalized_ir = validator.ir_text
 
+    def to_wsl_path(win_path):
+        win_path = os.path.abspath(win_path)
+        if len(win_path) >= 2 and win_path[1] == ':':
+            drive = win_path[0].lower()
+            rel_path = win_path[2:].replace('\\', '/')
+            return f"/mnt/{drive}{rel_path}"
+        return win_path.replace('\\', '/')
+
+    is_wsl_llvm_as = llvm_as_path.startswith("wsl")
+    is_wsl_opt = opt_path.startswith("wsl")
+
     with tempfile.TemporaryDirectory(prefix="llvm_ir_check_") as tmpdir:
         input_ll = os.path.join(tmpdir, "input.ll")
         output_bc = os.path.join(tmpdir, "output.bc")
         with open(input_ll, "w", encoding="utf-8") as f:
             f.write(normalized_ir)
 
-        assemble_cmd = [llvm_as_path, input_ll, "-o", output_bc]
+        if is_wsl_llvm_as:
+            wsl_input = to_wsl_path(input_ll)
+            wsl_output = to_wsl_path(output_bc)
+            llvm_as_parts = llvm_as_path.split()
+            assemble_cmd = llvm_as_parts + [wsl_input, "-o", wsl_output]
+        else:
+            assemble_cmd = [llvm_as_path, input_ll, "-o", output_bc]
+
         result["commands"].append(" ".join(assemble_cmd))
         assemble_proc = subprocess.run(
             assemble_cmd,
@@ -744,12 +786,23 @@ def validate_ir_with_llvm_tools(
             return result
         result["assembly_ok"] = True
 
-        verify_cmd_candidates = [
-            [opt_path, "-verify", "-disable-output", output_bc],
-            [opt_path, "-disable-output", "-verify", output_bc],
-            [opt_path, "-passes=verify", "-disable-output", output_bc],
-            [opt_path, "-disable-output", "-passes=verify", output_bc],
-        ]
+        if is_wsl_opt:
+            wsl_output = to_wsl_path(output_bc)
+            opt_parts = opt_path.split()
+            verify_cmd_candidates = [
+                opt_parts + ["-verify", "-disable-output", wsl_output],
+                opt_parts + ["-disable-output", "-verify", wsl_output],
+                opt_parts + ["-passes=verify", "-disable-output", wsl_output],
+                opt_parts + ["-disable-output", "-passes=verify", wsl_output],
+            ]
+        else:
+            verify_cmd_candidates = [
+                [opt_path, "-verify", "-disable-output", output_bc],
+                [opt_path, "-disable-output", "-verify", output_bc],
+                [opt_path, "-passes=verify", "-disable-output", output_bc],
+                [opt_path, "-disable-output", "-passes=verify", output_bc],
+            ]
+
         compatibility_markers = (
             "unknown command line argument",
             "unknown argument",

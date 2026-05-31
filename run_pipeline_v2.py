@@ -8,17 +8,27 @@ import json
 import time
 from datetime import datetime
 
-sys.path.insert(0, "/app/project")
+REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
 
 from source_constructs import ALL_CONSTRUCTS, CONSTRUCT_MAP, get_summary_table
 from ir_generator import IRGenerationPipeline, ModelConfig, GenerationResult, extract_ir_from_response
-from ir_validator import validate_ir, validate_and_compare
+from ir_validator import validate_ir, validate_and_compare, validate_ir_with_llvm_tools
 from failure_analyzer import FailureModeAnalyzer, FAILURE_TAXONOMY
 from repair_loop import RepairLoop, compute_repair_statistics
 from report_generator import generate_report
 
-OUTPUT_DIR = "/app/project/results"
+OUTPUT_DIR = os.path.join(REPO_ROOT, "results")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+
+def get_llvm_tools_wsl():
+    """Get LLVM tool paths in WSL."""
+    return {
+        "llvm_as": "wsl llvm-as",
+        "opt": "wsl opt",
+    }
 
 
 def main():
@@ -75,6 +85,7 @@ def main():
     total = len(constructs) * len(models) * len(strategies)
     count = 0
     retries_total = 0
+    llvm_validation_results = []
 
     for construct in constructs:
         for model in models:
@@ -99,8 +110,26 @@ def main():
                         else:
                             # Quick validation peek
                             r = validate_ir(result.generated_ir)
+                            tools = get_llvm_tools_wsl()
+                            llvm_check = validate_ir_with_llvm_tools(
+                                result.generated_ir,
+                                llvm_as_path=tools["llvm_as"],
+                                opt_path=tools["opt"],
+                            )
+                            llvm_validation_results.append(
+                                {
+                                    "construct_id": construct.id,
+                                    "model": model.display_name,
+                                    "strategy": strategy,
+                                    "llvm_tool_validation": llvm_check,
+                                }
+                            )
                             v_status = "VALID" if r.is_valid else f"{r.error_count} errors"
-                            print(f"  OK ({result.generation_time_s}s) -> {v_status}")
+                            llvm_status = "LLVM_OK" if llvm_check["is_valid"] else "LLVM_FAIL"
+                            print(f"  OK ({result.generation_time_s}s) -> {v_status} | {llvm_status}")
+                            if not llvm_check["is_valid"] and llvm_check.get("stderr"):
+                                llvm_reason = llvm_check["stderr"][-1].splitlines()[0][:180]
+                                print(f"  LLVM reason: {llvm_reason}")
                         break
                     except Exception as e:
                         if attempt < max_retries - 1:
@@ -129,6 +158,8 @@ def main():
     print(f"\nGeneration complete. Total retries: {retries_total}")
     gen_path = os.path.join(OUTPUT_DIR, "generation_results.json")
     pipeline.save_results(gen_path)
+    with open(os.path.join(OUTPUT_DIR, "llvm_tool_validation.json"), "w", encoding="utf-8") as f:
+        json.dump(llvm_validation_results, f, indent=2)
 
     # ================================================================
     # PHASE 2: FAILURE ANALYSIS
@@ -165,11 +196,28 @@ def main():
         repair_path = os.path.join(OUTPUT_DIR, "repair_results.json")
         RepairLoop.save_repair_results(repair_results, repair_path)
 
+        repair_llvm_checks = []
+        tools = get_llvm_tools_wsl()
+        for rr in repair_results:
+            llvm_check = validate_ir_with_llvm_tools(
+                rr.final_ir,
+                llvm_as_path=tools["llvm_as"],
+                opt_path=tools["opt"],
+            )
+            repair_llvm_checks.append(
+                {
+                    "construct_id": rr.construct_id,
+                    "repair_successful": rr.repair_successful,
+                    "final_errors": rr.final_errors,
+                    "llvm_tool_validation": llvm_check,
+                }
+            )
+        with open(os.path.join(OUTPUT_DIR, "repair_llvm_tool_validation.json"), "w", encoding="utf-8") as f:
+            json.dump(repair_llvm_checks, f, indent=2)
+
         repair_stats = compute_repair_statistics(repair_results)
         print("\n--- Repair Statistics ---")
-        for key, val in repair_stats.items():
-            print(f"  {key}: {val}")
-        with open(os.path.join(OUTPUT_DIR, "repair_statistics.json"), "w") as f:
+        with open(os.path.join(OUTPUT_DIR, "repair_statistics.json"), "w", encoding="utf-8") as f:
             json.dump(repair_stats, f, indent=2)
     else:
         print("All generations were valid — no repair needed!")
@@ -202,7 +250,7 @@ def main():
             "key_ir_features_expected": construct.key_ir_features,
         })
 
-    with open(os.path.join(OUTPUT_DIR, "detailed_examples.json"), "w") as f:
+    with open(os.path.join(OUTPUT_DIR, "detailed_examples.json"), "w", encoding="utf-8") as f:
         json.dump(examples, f, indent=2)
     print(f"Saved {len(examples)} detailed examples")
 

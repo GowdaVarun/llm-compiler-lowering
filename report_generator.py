@@ -48,7 +48,7 @@ def generate_report(results_dir: str, output_path: str = None):
     full_report = "\n\n".join(report)
 
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(full_report)
     print(f"Report saved to {output_path}")
 
@@ -57,7 +57,7 @@ def generate_report(results_dir: str, output_path: str = None):
 
 def _load_json(path):
     try:
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return None

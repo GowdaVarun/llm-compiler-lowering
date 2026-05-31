@@ -325,9 +325,7 @@ def main():
 
         repair_stats = compute_repair_statistics(repair_results)
         print("\n--- Repair Statistics ---")
-        for key, val in repair_stats.items():
-            print(f"  {key}: {val}")
-        with open(os.path.join(args.output_dir, "repair_statistics.json"), "w") as f:
+        with open(os.path.join(args.output_dir, "repair_statistics.json"), "w", encoding="utf-8") as f:
             json.dump(repair_stats, f, indent=2)
     else:
         print("All generations were valid — no repair needed!")
@@ -362,7 +360,7 @@ def main():
             }
         )
 
-    with open(os.path.join(args.output_dir, "detailed_examples.json"), "w") as f:
+    with open(os.path.join(args.output_dir, "detailed_examples.json"), "w", encoding="utf-8") as f:
         json.dump(examples, f, indent=2)
     print(f"Saved {len(examples)} detailed examples")
 
