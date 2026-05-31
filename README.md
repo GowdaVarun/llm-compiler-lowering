@@ -138,7 +138,7 @@ export HF_TOKEN=your_token_here
 Ensure `ollama` is running, pull the model, and execute:
 ```bash
 ollama pull qwen2.5-coder:3b
-./run.sh ollama --model qwen2.5-coder:3b
+./run.sh ollama --model qwen2.5-coder:3b --levels 1
 ```
 
 Outputs are written to `results/` (Hugging Face pipeline) or `ollama_results/` (Ollama pipeline).
@@ -210,7 +210,7 @@ inputs exist where applicable; pointer/struct/composite constructs are **IR-only
 | Llama-3.1-8B      | 89.7%      | 89.7%      | 0.33s    |
 | Qwen2.5-72B       | 75.9%      | 82.8%      | 22.8s    |
 
-## 🐛 Failure Taxonomy
+##  Failure Taxonomy
 
 | Class   | Category             | Count  | % of Total |
 | ------- | -------------------- | ------ | ---------- |
@@ -248,22 +248,6 @@ There is currently no separate generator script that auto-creates those construc
 `run_pipeline_ollama.py` requires LLVM CLI tools in PATH (`llvm-as`, `opt`) and
 saves outputs by default to `ollama_results/` (including LLVM tool validation JSON files).
 
-## 🎥 Demo evidence (video or screenshots)
-
-Capture these items:
-
-1. Run `./run.sh` (or `run.bat`) and show `PIPELINE COMPLETE` plus the generated files in `results/`.
-2. Show a working case from `results/REPORT.md` or `results/detailed_examples.json`.
-3. Show a failure case and repair stats from `results/failure_analysis.json` and `results/repair_statistics.json`
-   (e.g., Bubble Sort L6_01 is not fully repaired in the sample results).
-
-## 📚 References
-
-1. Jiang et al. (2025). "Can LLMs Understand IR?" arXiv:2502.06854
-2. Cummins et al. (2023). "LLMs for Compiler Optimization." ICLR 2024. arXiv:2309.07062
-3. AIvril 2 (2024). "EDA-Aware RTL Generation." arXiv:2412.04485
-4. IRCoder (2024). arXiv:2403.03894
-5. LLM4Decompile (2024). arXiv:2403.05286
 
 ## License
 
